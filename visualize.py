@@ -14,7 +14,7 @@ class Visualize:
         self.game = None
         self.freeze = False
         self.robber_move = False
-        self.rolled = False
+        self.rolled = True
         self.setUp() #initializes game
         self.playGame()
         self.hand = None
@@ -146,6 +146,15 @@ class Visualize:
                        tag = t: leaveTile(tag))
             c.tag_bind(t,'<Button-1>',lambda event,
                        tag = t: clickTile(tag))
+
+
+            c.tag_bind(tile_to_knight[t][0],"<Enter>", lambda event,
+                       tag = t: enterTile(tag))
+            c.tag_bind(tile_to_knight[t][0],"<Leave>", lambda event,
+                       tag = t: leaveTile(tag))
+            c.tag_bind(tile_to_knight[t][0],'<Button-1>',lambda event,
+                       tag = t: clickTile(tag))
+
 
 
         def enterTile(tag):
@@ -347,8 +356,7 @@ class Visualize:
                                 text = 'Roll: ' + str(self.game.dieRoll))
                 self.rolled = True
             else:
-                self.game.turn += 1
-                self.game.round = self.game.turn//len(self.game.players)
+                self.rolled = True
                 self.game.playerUpdate()
                 self.updateDevs()
                 c.itemconfigure(turn_label,
@@ -365,7 +373,7 @@ class Visualize:
 
 
         def enterRoll(event,tag):
-            if not self.freeze:
+            if not self.freeze and not self.rolled:
                 c.itemconfigure(roll_box,fill = 'white')
 
         def leaveRoll(event,tag):
@@ -401,6 +409,9 @@ class Visualize:
 
         def clickEnd(event,tag):
             if not self.freeze and self.rolled:
+                c.itemconfigure(roll_label,
+                                text = 'Roll: ')
+
                 self.game.turn += 1
                 self.game.round = self.game.turn//len(self.game.players)
                 self.game.playerUpdate()
@@ -426,7 +437,7 @@ class Visualize:
 
 
         def enterBDev(event,tag):
-            if not self.freeze:
+            if not self.freeze and self.rolled:
                 c.itemconfigure(dev_box,fill = 'white')
 
         def leaveBDev(event,tag):
@@ -435,7 +446,7 @@ class Visualize:
 
         def clickBDev(event,tag):
             if not self.freeze and self.game.round > 1 and \
-                    self.game.moves['dev_card']:
+                    self.game.moves['dev_card'] and self.rolled:
                 self.game.buyDev()
                 self.updateHand()
                 self.updateDevs()
@@ -456,7 +467,7 @@ class Visualize:
 
 
         def enterTrade(event,tag):
-            if not self.freeze:
+            if not self.freeze and self.rolled:
                 c.itemconfigure(tradeIn_box,fill = 'white')
 
         def leaveTrade(event,tag):
@@ -464,7 +475,7 @@ class Visualize:
                 c.itemconfigure(tradeIn_box,fill = '#C8C8C8')
 
         def clickTrade(event,tag):
-            if not self.freeze and self.game.round > 1:
+            if not self.freeze and self.rolled and self.game.round > 1:
                 #self.freeze = True
                 self.tradeWindow()
 
@@ -482,7 +493,7 @@ class Visualize:
                    tag = tradeIn_box: clickTrade(event,tag))
 
         def enterTradeOther(event,tag):
-            if not self.freeze:
+            if not self.freeze and self.rolled:
                 c.itemconfigure(tradeOther_box,fill = 'white')
 
         def leaveTradeOther(event,tag):
@@ -490,7 +501,7 @@ class Visualize:
                 c.itemconfigure(tradeOther_box,fill = '#E0E0E0')
 
         def clickTradeOther(event,tag):
-            if not self.freeze and self.game.round > 1:
+            if not self.freeze and self.rolled and self.game.round > 1:
                 #self.freeze = True
                 self.tradeOtherWindow()
 
@@ -540,7 +551,7 @@ class Visualize:
         def buyHouse(event,tag):
             index =  settlements_to_vertices[tag]
             if self.game.moves['settlements'][index[0]][index[1]] and \
-                    not self.freeze:
+                    not self.freeze and self.rolled:
                 c.itemconfigure(tag,fill=self.game.current_player.color,
                                 outline='black')
                 boughtHomes.add(tag)
@@ -553,7 +564,7 @@ class Visualize:
         def enterHouse(event,tag):
             index =  settlements_to_vertices[tag]
             if self.game.moves['settlements'][index[0]][index[1]] and\
-                    not self.freeze:
+                    not self.freeze and self.rolled:
                 c.itemconfigure(tag,fill='#D3D3D3')
 
         def leaveHouse(event,tag):
@@ -564,7 +575,7 @@ class Visualize:
             index =  cities_to_vertices[tag]
             if self.game.round > 1 and \
                     self.game.moves['cities'][index[0]][index[1]] and \
-                    not self.freeze:
+                    not self.freeze and self.rolled:
                 c.itemconfigure(tag,fill=self.game.current_player.color,
                                 outline='black')
                 boughtCities.add(tag)
@@ -576,7 +587,7 @@ class Visualize:
         def enterCity(event,tag):
             index =  cities_to_vertices[tag]
             if self.game.round > 1 and self.game.moves['cities'][index[0]][index[1]] and\
-                    not self.freeze:
+                    not self.freeze and self.rolled:
                 c.itemconfigure(tag,fill='#D3D3D3')
 
         def leaveCity(event,tag):
@@ -658,6 +669,9 @@ class Visualize:
                 self.game.buyRoad(self.game.current_player.name,index)
                 self.game.availableMoves()
                 if self.game.round < 2:
+                    self.rolled = False
+                    self.game.turn += 1
+                    self.game.round = self.game.turn//len(self.game.players)
                     nextTurn()
                 self.updateHand()
 
