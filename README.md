@@ -2,9 +2,12 @@
 
 The goal of this project is to create an AI for playing Catan. This initial version does not yet support an AI but can be used to play  3-4 person games of Catan. Simply download the repostiory and run using python main.py.
 
+
+![Demo](/gifs/game_play.gif)
+
 ## Playing
 
-These instruciton assume a knowledge of the rules of Catan. 
+These instrucitons assume a knowledge of the rules of Catan. 
 
 ### Rolling Dice
 
