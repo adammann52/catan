@@ -41,6 +41,17 @@ class Visualize:
             e1.delete(0,END)
             e2.delete(0,END)
 
+        def destroy():
+            n_name = e1.get()
+            color = e2.get()
+            if len(n_name) > 0:
+
+                players.append(n_name)
+                colors.append(color)
+            root.destroy()
+
+
+
         Label(root,
                  text="Name").grid(row=0)
         Label(root,
@@ -55,7 +66,7 @@ class Visualize:
             .grid(row=2,column=0,sticky=W)
         Button(root,
                   text='Start Game',
-                  command=root.destroy).grid(row=2,
+                  command=destroy).grid(row=2,
                                             column=1,
                                             sticky=W)
 
