@@ -2,6 +2,7 @@ from player import Player
 from board import Board
 from dev_cards import DevelopmentCards
 import random
+#from handler import getState
 
 class Game:
 
@@ -78,7 +79,7 @@ class Game:
         self.availableMoves()
 
     def availableMoves(self):
-        settlements = []
+        settlements = [[]]
         cities = []
         roads = []
 
@@ -86,17 +87,19 @@ class Game:
         if self.round < 2:
 
             if len(self.current_player.settlements) ==\
-                    len(self.current_player.roads):
+                    len(self.current_player.roads)\
+                    and len(self.current_player.settlements) <= self.round:
                 #then we buy a house
                 settlements = self.board.availableVertices
 
-            else:
+            elif len(self.current_player.roads) <= self.round:
                 #then we buy a road
                 for road in self.board.availableEdges:
                     if tuple(self.lastHouse) in road:
                         roads.append(road)
 
                 settlements = [[None]*11 for i in range(6)]
+
 
             self.moves = {'roads':roads,
                     'settlements':settlements}
@@ -127,7 +130,8 @@ class Game:
                     and self.board.vertices[i][q].owner == self.current_player\
                            and self.board.vertices[i][q].val == 1\
                            and self.current_player.hand['wheat'] > 1\
-                           and self.current_player.hand['ore']>2)
+                           and self.current_player.hand['ore']>2) \
+                           and len(self.current_player.cities) < 4
 
             cities.append(row)
 
@@ -234,7 +238,7 @@ class Game:
         self.checkLongest()
 
     def buyCity(self, player, coordinates):
-        self.board.vertices[coordinates[0]][coordinates[1]].owner = self.current_player
+        self.board.vertices[coordinates[0]][coordinates[1]].city = True
         self.current_player.hand['wheat'] -= 2
         self.current_player.hand['ore'] -= 3
         self.board.vertices[coordinates[0]][coordinates[1]].val = 2
@@ -244,7 +248,7 @@ class Game:
     def buyRoad(self, player, road):
         self.player_dic[player].roads.append(road)
         self.board.availableEdges.remove(road)
-
+        self.board.edges[road].owner = self.current_player
         if self.round > 1 and self.building_roads == 0:
             self.current_player.hand['wood'] -= 1
             self.current_player.hand['brick'] -= 1

@@ -14,7 +14,7 @@ class Board:
 
 
 
-    def setBoard(self, standard):
+    def setBoard(self, standard = True):
 
         self.spots = {i: Tile() for i in range(1,20)}
 
@@ -39,8 +39,13 @@ class Board:
 
 
         #assigning resources to tiles
-        options = ['Desert'] + ['Sheep']*4 +['Wheat']*4 + ['Ore']*3 + ['Wood']*4 + ['Brick']*3
-        random.shuffle(options)
+        #options = ['Desert'] + ['Sheep']*4 +['Wheat']*4 + ['Ore']*3 + ['Wood']*4 + ['Brick']*3
+        #beginner board set-up as stated in rules
+        options = ['Ore','Wheat','Wood','Ore','Wheat','Sheep','Wheat',
+                   'Sheep','Wood','Brick','Desert','Brick','Sheep','Sheep',
+                   'Wood','Brick','Ore','Wood','Wheat']
+        if not standard:
+            random.shuffle(options)
         for spot,r  in zip(range(1,20),options):
             self.spots[spot].resource = r
 
@@ -147,4 +152,4 @@ class Tile:
 class Edge:
 
     def __init__(self):
-        owner = None
+        self.owner = None
