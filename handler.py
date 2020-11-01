@@ -97,7 +97,7 @@ def processActions(game,state):
         new_states.append(c_state)
 
     #trades
-    hand =  copy.deepcopy(game.current_player.hand)
+    hand = game.current_player.hand
     for resource in hand.keys():
 
         if game.current_player.ports[resource] and hand[resource] >= 2:
@@ -116,7 +116,7 @@ def processActions(game,state):
             for el in hand:
                 if el!= resource:
                     new_states.append(switch(game,state,resource,el,4,1))
-                    actions.append(['T',(resource,el,4,1,hand)])
+                    actions.append(['T',(resource,el,4,1)])
 
     return new_states,actions
 
@@ -127,9 +127,6 @@ def selectAction(game,new_states,actions):
     if game.round < 2 and len(actions) > 1:
         i = random.randint(1,len(actions)-1)
     action,spec = actions[i]
-    #print(game.current_player.hand)
-    #print(game.round)
-    #print(action)
     if action == 'S':
         game.buySettlement(game.current_player.name,spec)
     elif action == 'C':
@@ -137,12 +134,8 @@ def selectAction(game,new_states,actions):
     elif action == 'R':
         game.buyRoad(game.current_player.name,spec)
     elif action == 'T':
-        print(game.current_player.hand)
-        print(spec)
         game.current_player.hand[spec[0]] -= spec[2]
         game.current_player.hand[spec[1]] += spec[3]
-        print(game.current_player.hand)
-        print()
 
     else:
         #print(game.current_player.name)
@@ -198,11 +191,10 @@ def threeBot():
     bots = [Robot() for i in range(3)]
     game = Game(player_names = [bot.name for bot in bots])
     for i in range(500):
-        state = getState(game)
-        new_states, actions = processActions(game,state)
         if game.dieRoll == 7:
             dropCards(game)
-            print('dropped')
+        state = getState(game)
+        new_states, actions = processActions(game,state)
         if selectAction(game,new_states,actions):
             print(i)
             break
